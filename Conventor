@@ -1,0 +1,123 @@
+import sys
+
+from PyQt5.QtWidgets import (
+    QApplication,
+    QGridLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+    QComboBox,
+)
+
+app = QApplication(sys.argv)
+
+class Memory(QWidget):
+    def __init__(self, memory):
+        super().__init__()
+
+        self.setWindowTitle("Memory")
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.memory_list = QListWidget()
+        self.layout.addWidget(self.memory_list)
+
+        for x in memory:
+            self.memory_list.addItem(x)
+
+
+
+class Conventor(QWidget):
+    def __init__(self):
+        super().__init__()
+
+
+        self.setWindowTitle("Konventor")
+
+        main_layout = QVBoxLayout()
+
+        #input display
+        self.display = QLineEdit()
+        self.display.setStyleSheet("font-size: 24px;")
+        main_layout.addWidget(self.display)
+
+        #combobox
+        self.combo = QComboBox()
+        self.combo.setStyleSheet("font-size: 24px;")
+        self.combo.addItems(["metr", "centimetr", "milimetr"])
+        main_layout.addWidget(self.combo)
+
+        # combobox_output
+        self.output_combo = QComboBox()
+        self.output_combo.setStyleSheet("font-size: 24px;")
+        self.output_combo.addItems(["metr", "centimetr", "milimetr"])
+        main_layout.addWidget(self.output_combo)
+
+        #button
+        self.button = QPushButton()
+        self.button.setText("Converte")
+        self.button.setStyleSheet("font-size: 24px;")
+        main_layout.addWidget(self.button)
+        self.button.clicked.connect(self.converte)
+
+        #output display
+        self.output_display = QLineEdit()
+        self.output_display.setReadOnly(True)
+        self.output_display.setText("0")
+        self.output_display.setStyleSheet("font-size: 24px;")
+        main_layout.addWidget(self.output_display)
+
+        # memory_button
+        self.memory_button = QPushButton()
+        self.memory_button.setText("Memory")
+        self.memory_button.setStyleSheet("font-size: 24px;")
+        main_layout.addWidget(self.memory_button)
+        self.memory_button.clicked.connect(self.show_memory)
+
+
+        self.setLayout(main_layout)
+        self.memory = []
+
+    def converte(self):
+        vstupni_jednotka = self.combo.currentText()
+        vystupni_jednotka = self.output_combo.currentText()
+
+        #controlling_input
+        try:
+            hodnota = float(self.display.text())
+        except ValueError:
+            self.output_display.setText("Invalid input")
+            return
+
+        conversion_factors = {
+            "metr": 1,
+            "centimetr": 100,
+            "milimetr": 1000
+        }
+
+        if vstupni_jednotka in conversion_factors and vystupni_jednotka in conversion_factors:
+            hodnota_metry = hodnota/conversion_factors[vstupni_jednotka]
+            vysledek = hodnota_metry*conversion_factors[vystupni_jednotka]
+
+
+            self.output_display.setText(str(vysledek))
+            self.memory.append(str(hodnota) + vstupni_jednotka + " = " + str(vysledek) + vystupni_jednotka)
+            print(self.memory)
+        else:
+            self.output_display.setText("Invalid unit")
+
+
+    def show_memory(self):
+        self.memory_widget = Memory(self.memory)
+        self.memory_widget.show()
+
+
+
+conventor = Conventor()
+conventor.show()
+
+app.exec()
