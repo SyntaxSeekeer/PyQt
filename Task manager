@@ -1,0 +1,102 @@
+import sys
+from PyQt5.QtWidgets import (
+    QApplication,
+    QVBoxLayout,
+    QLineEdit,
+    QPushButton,
+    QListWidget,
+    QWidget,
+)
+
+app = QApplication(sys.argv)
+
+
+class Memory(QWidget):
+    def __init__(self, memory, parent):
+        super().__init__()
+
+        self.memory = memory
+        self.parent = parent
+
+        self.setWindowTitle("Memory")
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.memory_list = QListWidget()
+        self.layout.addWidget(self.memory_list)
+
+        for task in memory:
+            self.memory_list.addItem(task)
+
+        # Delete selected task button
+        self.clear_selected_button = QPushButton("Delete Task")
+        self.clear_selected_button.setStyleSheet("font-size: 18px;")
+        self.clear_selected_button.clicked.connect(self.clear_selected)
+        self.layout.addWidget(self.clear_selected_button)
+
+        # Delete all tasks button
+        self.clear_all_button = QPushButton("Clear All")
+        self.clear_all_button.setStyleSheet("font-size: 18px;")
+        self.clear_all_button.clicked.connect(self.clear_all)
+        self.layout.addWidget(self.clear_all_button)
+
+    def clear_selected(self):
+        selected_item = self.memory_list.currentItem()
+        if selected_item:
+            row = self.memory_list.row(selected_item)
+            self.memory_list.takeItem(row)
+            del self.memory[row]
+            self.parent.update_memory()
+
+    def clear_all(self):
+        self.memory_list.clear()
+        self.memory.clear()
+        self.parent.update_memory()
+
+
+class Conventor(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Task Manager")
+
+        main_layout = QVBoxLayout()
+
+        # Input field
+        self.display = QLineEdit()
+        self.display.setStyleSheet("font-size: 18px;")
+        main_layout.addWidget(self.display)
+
+        # Add task button
+        self.button = QPushButton("Add Task")
+        self.button.setStyleSheet("font-size: 18px;")
+        self.button.clicked.connect(self.create_task)
+        main_layout.addWidget(self.button)
+
+        # Open memory button
+        self.memory_button = QPushButton("Memory")
+        self.memory_button.setStyleSheet("font-size: 18px;")
+        self.memory_button.clicked.connect(self.show_memory)
+        main_layout.addWidget(self.memory_button)
+
+        self.setLayout(main_layout)
+        self.memory = []
+
+    def create_task(self):
+        task = self.display.text().strip()
+        if task:
+            self.memory.append(task)
+            self.display.clear()
+
+    def show_memory(self):
+        self.memory_widget = Memory(self.memory, self)
+        self.memory_widget.show()
+
+    def update_memory(self):
+        pass  # No need for debugging prints; this ensures sync
+
+
+conventor = Conventor()
+conventor.show()
+
+app.exec()
